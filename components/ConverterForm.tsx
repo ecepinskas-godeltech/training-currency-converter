@@ -1,8 +1,8 @@
-import AmountInput from './AmountInput';
-import CurrencySelect from './CurrencySelect';
-import SwapButton from './SwapButton';
-import ConversionResult from './ConversionResult';
-import { ExchangeRates } from '@/types';
+import AmountInput from "./AmountInput";
+import CurrencySelect from "./CurrencySelect";
+import SwapButton from "./SwapButton";
+import ConversionResult from "./ConversionResult";
+import { ExchangeRates } from "@/types";
 
 interface ConverterFormProps {
   amount: string;
@@ -15,6 +15,8 @@ interface ConverterFormProps {
   onFromCurrencyChange: (value: string) => void;
   onToCurrencyChange: (value: string) => void;
   onSwap: () => void;
+  onRefresh?: () => Promise<void>;
+  isLoading?: boolean;
 }
 
 export default function ConverterForm({
@@ -28,10 +30,13 @@ export default function ConverterForm({
   onFromCurrencyChange,
   onToCurrencyChange,
   onSwap,
+  onRefresh,
+  isLoading = false,
 }: ConverterFormProps) {
-  const currentRate = exchangeRates && fromCurrency && toCurrency
-    ? exchangeRates.rates[toCurrency] / exchangeRates.rates[fromCurrency]
-    : null;
+  const currentRate =
+    exchangeRates && fromCurrency && toCurrency
+      ? exchangeRates.rates[toCurrency] / exchangeRates.rates[fromCurrency]
+      : null;
 
   return (
     <div className="space-y-4">
@@ -51,12 +56,9 @@ export default function ConverterForm({
 
           <SwapButton onClick={onSwap} />
 
-          <CurrencySelect
-            value={toCurrency}
-            onChange={onToCurrencyChange}
-          />
+          <CurrencySelect value={toCurrency} onChange={onToCurrencyChange} />
         </div>
-        
+
         {/* Error message below the row */}
         {validationError && (
           <p className="text-sm text-red-600 px-1">{validationError}</p>
@@ -70,6 +72,8 @@ export default function ConverterForm({
           fromCurrency={fromCurrency}
           toCurrency={toCurrency}
           rate={currentRate}
+          onRefresh={onRefresh}
+          isLoading={isLoading}
         />
       )}
     </div>

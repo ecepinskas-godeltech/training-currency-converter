@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import PageHeader from '@/components/PageHeader';
-import PageFooter from '@/components/PageFooter';
-import ErrorMessage from '@/components/ErrorMessage';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import ConverterForm from '@/components/ConverterForm';
-import ConversionHistory from '@/components/ConversionHistory';
-import { useExchangeRates } from '@/hooks/useExchangeRates';
-import { useConverter } from '@/hooks/useConverter';
+import { useState } from "react";
+import PageHeader from "@/components/PageHeader";
+import PageFooter from "@/components/PageFooter";
+import ErrorMessage from "@/components/ErrorMessage";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ConverterForm from "@/components/ConverterForm";
+import ConversionHistory from "@/components/ConversionHistory";
+import { useExchangeRates } from "@/hooks/useExchangeRates";
+import { useConverter } from "@/hooks/useConverter";
 
 export default function Home() {
   const [showHistory, setShowHistory] = useState<boolean>(false);
-  
+
   // Fetch exchange rates
-  const { exchangeRates, loading, error } = useExchangeRates();
+  const { exchangeRates, loading, error, refreshRates } = useExchangeRates();
 
   // Conversion logic
   const {
@@ -58,6 +58,8 @@ export default function Home() {
               onFromCurrencyChange={setFromCurrency}
               onToCurrencyChange={setToCurrency}
               onSwap={handleSwap}
+              onRefresh={refreshRates}
+              isLoading={loading}
             />
           )}
         </div>
