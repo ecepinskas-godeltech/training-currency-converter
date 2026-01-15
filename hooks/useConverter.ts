@@ -5,6 +5,9 @@ import {
   saveConversion,
   getConversionHistory,
   clearConversionHistory as clearStorage,
+  getFavoriteCurrencies,
+  saveFavoriteCurrencies,
+  MAX_FAVORITES,
 } from "@/utils/storage";
 import { ConversionResult, ExchangeRates } from "@/types";
 
@@ -18,6 +21,10 @@ export function useConverter(exchangeRates: ExchangeRates | null) {
   const [result, setResult] = useState<number | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [history, setHistory] = useState<ConversionResult[]>([]);
+
+  // Favorite currencies state
+  const [favoriteCurrencies, setFavoriteCurrencies] = useState<string[]>([]);
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
 
   // Initialize from URL parameters
   useEffect(() => {
@@ -33,6 +40,9 @@ export function useConverter(exchangeRates: ExchangeRates | null) {
     if (urlTo && CURRENCIES.find((c) => c.code === urlTo)) setToCurrency(urlTo);
 
     setHistory(getConversionHistory());
+
+    // Restore favorites from localStorage
+    setFavoriteCurrencies(getFavoriteCurrencies());
   }, [searchParams]);
 
   // Update URL parameters
@@ -153,6 +163,37 @@ export function useConverter(exchangeRates: ExchangeRates | null) {
     setHistory([]);
   }, []);
 
+  // Add or remove a currency from favorites
+  const toggleFavoriteCurrency = useCallback((currencyCode: string) => {
+    setFavoriteError(null);
+    setFavoriteCurrencies((prev) => {
+      if (prev.includes(currencyCode)) {
+        // Remove from favorites
+        const updated = prev.filter((c) => c !== currencyCode);
+        saveFavoriteCurrencies(updated);
+        return updated;
+      } else {
+        // Add to favorites
+        if (prev.length >= MAX_FAVORITES) {
+          setFavoriteError(
+            `You can only select up to ${MAX_FAVORITES} favorite currencies.`
+          );
+          return prev;
+        }
+        const updated = [...prev, currencyCode];
+        saveFavoriteCurrencies(updated);
+        return updated;
+      }
+    });
+  }, []);
+
+  // Clear favorites
+  const clearFavorites = useCallback(() => {
+    setFavoriteCurrencies([]);
+    saveFavoriteCurrencies([]);
+    setFavoriteError(null);
+  }, []);
+
   return {
     amount,
     fromCurrency,
@@ -160,11 +201,15 @@ export function useConverter(exchangeRates: ExchangeRates | null) {
     result,
     validationError,
     history,
+    favoriteCurrencies,
+    favoriteError,
     setAmount,
     setFromCurrency: handleFromCurrencyChange,
     setToCurrency: handleToCurrencyChange,
     handleSwap,
     loadFromHistory,
     clearConversionHistory,
+    toggleFavoriteCurrency,
+    clearFavorites,
   };
 }

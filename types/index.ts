@@ -6,6 +6,17 @@ export interface Currency {
   symbol: string;
 }
 
+/**
+ * FavoriteCurrency extends Currency and is used for user-marked favorites.
+ * Only supported currencies can be marked as favorites.
+ */
+export interface FavoriteCurrency extends Currency {
+  /**
+   * Indicates if this currency is currently marked as a favorite by the user.
+   */
+  isFavorite: true;
+}
+
 export interface ExchangeRates {
   base: string;
   rates: {

@@ -17,6 +17,7 @@ interface ConverterFormProps {
   onSwap: () => void;
   onRefresh?: () => Promise<void>;
   isLoading?: boolean;
+  favorites?: string[];
 }
 
 export default function ConverterForm({
@@ -32,6 +33,7 @@ export default function ConverterForm({
   onSwap,
   onRefresh,
   isLoading = false,
+  favorites = [],
 }: ConverterFormProps) {
   const currentRate =
     exchangeRates && fromCurrency && toCurrency
@@ -52,11 +54,16 @@ export default function ConverterForm({
           <CurrencySelect
             value={fromCurrency}
             onChange={onFromCurrencyChange}
+            favorites={favorites}
           />
 
           <SwapButton onClick={onSwap} />
 
-          <CurrencySelect value={toCurrency} onChange={onToCurrencyChange} />
+          <CurrencySelect
+            value={toCurrency}
+            onChange={onToCurrencyChange}
+            favorites={favorites}
+          />
         </div>
 
         {/* Error message below the row */}
