@@ -6,6 +6,7 @@ import PageFooter from "@/components/PageFooter";
 import ErrorMessage from "@/components/ErrorMessage";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ConverterForm from "@/components/ConverterForm";
+import FavoriteToggle from "@/components/FavoriteToggle";
 import ConversionHistory from "@/components/ConversionHistory";
 import { useExchangeRates } from "@/hooks/useExchangeRates";
 import { useConverter } from "@/hooks/useConverter";
@@ -24,12 +25,15 @@ export default function Home() {
     result,
     validationError,
     history,
+    favoriteCurrencies,
+    favoriteError,
     setAmount,
     setFromCurrency,
     setToCurrency,
     handleSwap,
     loadFromHistory,
     clearConversionHistory,
+    toggleFavoriteCurrency,
   } = useConverter(exchangeRates);
 
   return (
@@ -60,8 +64,18 @@ export default function Home() {
               onSwap={handleSwap}
               onRefresh={refreshRates}
               isLoading={loading}
+              favorites={favoriteCurrencies}
             />
           )}
+        </div>
+
+        {/* Favorite Currencies Section */}
+        <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
+          <FavoriteToggle
+            favorites={favoriteCurrencies}
+            onToggleFavorite={toggleFavoriteCurrency}
+            error={favoriteError}
+          />
         </div>
 
         {/* History Section */}

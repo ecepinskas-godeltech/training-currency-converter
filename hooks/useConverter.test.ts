@@ -358,4 +358,46 @@ describe("useConverter", () => {
       expect(result.current.result).toBeCloseTo(117.65, 1);
     });
   });
+
+  describe("favorite currencies", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      localStorage.clear();
+      (storage.getFavoriteCurrencies as jest.Mock).mockReturnValue([]);
+      (storage.saveFavoriteCurrencies as jest.Mock).mockImplementation(
+        () => {}
+      );
+      (storage.getConversionHistory as jest.Mock).mockReturnValue([]);
+    });
+
+    it("should toggle favorite on/off", () => {
+      (storage.saveFavoriteCurrencies as jest.Mock).mockClear();
+      const { result } = renderHook(() => useConverter(null));
+
+      // Add favorite
+      act(() => {
+        result.current.toggleFavoriteCurrency("USD");
+      });
+
+      expect(storage.saveFavoriteCurrencies).toHaveBeenCalledWith(["USD"]);
+    });
+
+    it("should clear all favorites", () => {
+      (storage.saveFavoriteCurrencies as jest.Mock).mockClear();
+      const { result } = renderHook(() => useConverter(null));
+
+      // Add some favorites
+      act(() => {
+        result.current.toggleFavoriteCurrency("USD");
+      });
+
+      // Clear all
+      (storage.saveFavoriteCurrencies as jest.Mock).mockClear();
+      act(() => {
+        result.current.clearFavorites();
+      });
+
+      expect(storage.saveFavoriteCurrencies).toHaveBeenCalledWith([]);
+    });
+  });
 });

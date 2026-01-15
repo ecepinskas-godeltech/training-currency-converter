@@ -1,12 +1,22 @@
-import { CURRENCIES } from '@/utils/currency';
+import { CURRENCIES } from "@/utils/currency";
 
 interface CurrencySelectProps {
   value: string;
   onChange: (value: string) => void;
   label?: string;
+  favorites?: string[];
 }
 
-export default function CurrencySelect({ value, onChange, label }: CurrencySelectProps) {
+export default function CurrencySelect({
+  value,
+  onChange,
+  label,
+  favorites = [],
+}: CurrencySelectProps) {
+  // Split currencies into favorites and others
+  const favoriteList = CURRENCIES.filter((c) => favorites.includes(c.code));
+  const otherList = CURRENCIES.filter((c) => !favorites.includes(c.code));
+
   return (
     <div className="flex-1 w-full sm:w-auto relative">
       {label && (
@@ -19,15 +29,36 @@ export default function CurrencySelect({ value, onChange, label }: CurrencySelec
         onChange={(e) => onChange(e.target.value)}
         className="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none text-lg bg-white cursor-pointer hover:border-gray-400 transition-colors appearance-none"
       >
-        {CURRENCIES.map((currency) => (
-          <option key={currency.code} value={currency.code}>
-            {currency.code} - {currency.name}
-          </option>
-        ))}
+        {favoriteList.length > 0 && (
+          <optgroup label="Favorites">
+            {favoriteList.map((currency) => (
+              <option key={currency.code} value={currency.code}>
+                {currency.code} - {currency.name} ★
+              </option>
+            ))}
+          </optgroup>
+        )}
+        <optgroup label="All Currencies">
+          {otherList.map((currency) => (
+            <option key={currency.code} value={currency.code}>
+              {currency.code} - {currency.name}
+            </option>
+          ))}
+        </optgroup>
       </select>
       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <svg
+          className="w-5 h-5 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </div>
     </div>
