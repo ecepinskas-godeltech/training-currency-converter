@@ -1,0 +1,107 @@
+<testsuites id="" name="" tests="3" failures="3" skipped="0" errors="0" time="14.783479">
+<testsuite name="conversion-history.spec.ts" timestamp="2026-01-15T10:14:54.387Z" hostname="chromium" tests="1" failures="1" skipped="0" time="4.461" errors="0">
+<testcase name="Conversion History &amp; Data Persistence (P2) › should display conversion history after each conversion" classname="conversion-history.spec.ts" time="4.461">
+<failure message="conversion-history.spec.ts:20:7 should display conversion history after each conversion" type="FAILURE">
+<![CDATA[  [chromium] › conversion-history.spec.ts:20:7 › Conversion History & Data Persistence (P2) › should display conversion history after each conversion 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      41 |       // Get history count
+      42 |       const historyCount = await converterPage.getHistoryItemCount();
+    > 43 |       expect(historyCount).toBeGreaterThan(0);
+         |                            ^
+      44 |     }
+      45 |   });
+      46 |
+        at C:\Users\e.cepinskas\Documents\Training\e2e\tests\conversion-history.spec.ts:43:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-chromium\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-chromium\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="conversion-history.spec.ts" timestamp="2026-01-15T10:14:54.387Z" hostname="firefox" tests="1" failures="1" skipped="0" time="3.341" errors="0">
+<testcase name="Conversion History &amp; Data Persistence (P2) › should display conversion history after each conversion" classname="conversion-history.spec.ts" time="3.341">
+<failure message="conversion-history.spec.ts:20:7 should display conversion history after each conversion" type="FAILURE">
+<![CDATA[  [firefox] › conversion-history.spec.ts:20:7 › Conversion History & Data Persistence (P2) › should display conversion history after each conversion 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      41 |       // Get history count
+      42 |       const historyCount = await converterPage.getHistoryItemCount();
+    > 43 |       expect(historyCount).toBeGreaterThan(0);
+         |                            ^
+      44 |     }
+      45 |   });
+      46 |
+        at C:\Users\e.cepinskas\Documents\Training\e2e\tests\conversion-history.spec.ts:43:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-firefox\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-firefox\test-failed-1.png]]
+
+[[ATTACHMENT|..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-firefox\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="conversion-history.spec.ts" timestamp="2026-01-15T10:14:54.387Z" hostname="webkit" tests="1" failures="1" skipped="0" time="2.77" errors="0">
+<testcase name="Conversion History &amp; Data Persistence (P2) › should display conversion history after each conversion" classname="conversion-history.spec.ts" time="2.77">
+<failure message="conversion-history.spec.ts:20:7 should display conversion history after each conversion" type="FAILURE">
+<![CDATA[  [webkit] › conversion-history.spec.ts:20:7 › Conversion History & Data Persistence (P2) › should display conversion history after each conversion 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      41 |       // Get history count
+      42 |       const historyCount = await converterPage.getHistoryItemCount();
+    > 43 |       expect(historyCount).toBeGreaterThan(0);
+         |                            ^
+      44 |     }
+      45 |   });
+      46 |
+        at C:\Users\e.cepinskas\Documents\Training\e2e\tests\conversion-history.spec.ts:43:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-webkit\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-webkit\test-failed-1.png]]
+
+[[ATTACHMENT|..\..\test-results\conversion-history-Convers-652c7-story-after-each-conversion-webkit\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>
