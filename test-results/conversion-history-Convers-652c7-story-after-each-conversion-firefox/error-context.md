@@ -1,0 +1,88 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - heading "Currency Converter" [level=1] [ref=e5]
+        - paragraph [ref=e6]: Convert currencies with real-time exchange rates
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - spinbutton [active] [ref=e12]: "100"
+          - generic [ref=e13]:
+            - combobox [ref=e14] [cursor=pointer]:
+              - text: All Currencies
+              - option "USD - US Dollar" [selected]
+              - option "EUR - Euro"
+              - option "GBP - British Pound"
+              - option "JPY - Japanese Yen"
+              - option "AUD - Australian Dollar"
+              - option "CAD - Canadian Dollar"
+              - option "CHF - Swiss Franc"
+              - option "CNY - Chinese Yuan"
+              - option "INR - Indian Rupee"
+              - option "MXN - Mexican Peso"
+            - generic:
+              - img
+          - button "Swap currencies" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+          - generic [ref=e18]:
+            - combobox [ref=e19] [cursor=pointer]:
+              - text: All Currencies
+              - option "USD - US Dollar"
+              - option "EUR - Euro" [selected]
+              - option "GBP - British Pound"
+              - option "JPY - Japanese Yen"
+              - option "AUD - Australian Dollar"
+              - option "CAD - Canadian Dollar"
+              - option "CHF - Swiss Franc"
+              - option "CNY - Chinese Yuan"
+              - option "INR - Indian Rupee"
+              - option "MXN - Mexican Peso"
+            - generic:
+              - img
+        - paragraph [ref=e20]: Please enter an amount
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e24]: Favorite Currencies
+          - generic [ref=e25]: 0/5
+        - generic [ref=e26]:
+          - button "Mark US Dollar as favorite" [ref=e27] [cursor=pointer]:
+            - generic [ref=e28]: USD
+            - text: ☆
+          - button "Mark Euro as favorite" [ref=e29] [cursor=pointer]:
+            - generic [ref=e30]: EUR
+            - text: ☆
+          - button "Mark British Pound as favorite" [ref=e31] [cursor=pointer]:
+            - generic [ref=e32]: GBP
+            - text: ☆
+          - button "Mark Japanese Yen as favorite" [ref=e33] [cursor=pointer]:
+            - generic [ref=e34]: JPY
+            - text: ☆
+          - button "Mark Australian Dollar as favorite" [ref=e35] [cursor=pointer]:
+            - generic [ref=e36]: AUD
+            - text: ☆
+          - button "Mark Canadian Dollar as favorite" [ref=e37] [cursor=pointer]:
+            - generic [ref=e38]: CAD
+            - text: ☆
+          - button "Mark Swiss Franc as favorite" [ref=e39] [cursor=pointer]:
+            - generic [ref=e40]: CHF
+            - text: ☆
+          - button "Mark Chinese Yuan as favorite" [ref=e41] [cursor=pointer]:
+            - generic [ref=e42]: CNY
+            - text: ☆
+          - button "Mark Indian Rupee as favorite" [ref=e43] [cursor=pointer]:
+            - generic [ref=e44]: INR
+            - text: ☆
+          - button "Mark Mexican Peso as favorite" [ref=e45] [cursor=pointer]:
+            - generic [ref=e46]: MXN
+            - text: ☆
+      - generic [ref=e48]:
+        - heading "Conversion History" [level=2] [ref=e49]
+        - button "Show (0)" [ref=e51] [cursor=pointer]
+      - generic [ref=e52]:
+        - paragraph [ref=e53]: Exchange rates are updated hourly
+        - paragraph [ref=e54]: © 2026 Godel Technologies. All rights reserved.
+  - alert [ref=e55]
+```
