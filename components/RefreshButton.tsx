@@ -3,14 +3,16 @@ import { useState, useEffect } from "react";
 interface RefreshButtonProps {
   onRefresh: () => Promise<void>;
   isLoading?: boolean;
+  onError?: (error: Error) => void;
 }
 
 export default function RefreshButton({
   onRefresh,
   isLoading = false,
+  onError,
 }: RefreshButtonProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshTime, setLastRefreshTime] = useState<number>(0);
+  const [cooldownExpiryTime, setCooldownExpiryTime] = useState<number>(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const COOLDOWN_MS = 10000; // 10 seconds
 
@@ -22,29 +24,30 @@ export default function RefreshButton({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [cooldownRemaining]);
+  }, []);
 
   const handleRefresh = async () => {
-    // Prevent refresh if already loading
-    if (isLoading) {
+    // Early exit: prevent refresh if already loading or refreshing
+    if (isLoading || isRefreshing) {
       return;
     }
 
     const now = Date.now();
-    const timeSinceLastRefresh = now - lastRefreshTime;
 
-    // Check if cooldown is active
-    if (timeSinceLastRefresh < COOLDOWN_MS) {
-      setCooldownRemaining(
-        Math.ceil((COOLDOWN_MS - timeSinceLastRefresh) / 1000)
-      );
+    // Check if cooldown is still active
+    if (now < cooldownExpiryTime) {
+      setCooldownRemaining(Math.ceil((cooldownExpiryTime - now) / 1000));
       return;
     }
 
     setIsRefreshing(true);
     try {
       await onRefresh();
-      setLastRefreshTime(Date.now());
+      setCooldownExpiryTime(now + COOLDOWN_MS);
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error("Refresh failed:", err);
+      onError?.(err);
     } finally {
       setIsRefreshing(false);
     }
@@ -64,7 +67,11 @@ export default function RefreshButton({
           ? `Refresh available in ${cooldownRemaining}s`
           : "Refresh exchange rates"
       }
-      aria-label="Refresh exchange rates"
+      aria-label={
+        cooldownRemaining > 0
+          ? `Refresh unavailable, cooldown active (${cooldownRemaining}s)`
+          : "Refresh exchange rates"
+      }
     >
       <svg
         className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -79,7 +86,9 @@ export default function RefreshButton({
           d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
         />
       </svg>
-      <span className="text-sm">{buttonText}</span>
+      <span className="text-sm" role="status" aria-live="polite">
+        {buttonText}
+      </span>
     </button>
   );
 }
