@@ -47,6 +47,15 @@ utils/currency.ts + storage.ts (pure functions)
 - Use meaningful variable and function names that clearly indicate purpose.
 - Export utility constants (e.g., `VALIDATION_LIMITS`, `MAX_FAVORITES`) for reusability and testing.
 
+### Security Patterns (Critical)
+
+- **Input Sanitization**: Use `sanitizeCurrencyCode()` from `utils/currency.ts` for all currency inputs
+- **API Validation**: Validate ALL external API responses with `validateRatesResponse()` pattern
+- **Rate Limiting**: API routes must implement rate limiting (see `app/api/rates/route.ts`)
+- **localStorage Validation**: Use validation functions (`isValidConversionResult`, `isValidCurrencyCode`) when reading from storage
+- **URL Parameter Sanitization**: Validate and sanitize URL params before using (see `hooks/useConverter.ts` pattern)
+- **CSP Headers**: Security headers configured in `next.config.js` - maintain when adding new external resources
+
 ## 3. Architecture Patterns
 
 ### State Management & Hooks
@@ -119,11 +128,20 @@ npm run test:e2e:report    # View HTML test report
 - Always use the `<ErrorMessage />` component for displaying user-facing errors.
 - Log detailed error messages to the browser console for debugging.
 - Implement graceful API fallbacks:
-  - Try exchangerate.host → exchangerate-api.com → open.er-api.com
+  - Primary: frankfurter.app → Fallback: mock data
   - Display a user-friendly message if all APIs fail.
-- Validate user input before processing (use `validateAmount()` utility).
-- Handle localStorage access errors gracefully (wrap in try/catch).
+- **Validate ALL inputs**: Use `validateAmount()` utility before processing amounts.
+- **Sanitize ALL currency codes**: Use `sanitizeCurrencyCode()` to prevent injection attacks.
+- **Validate API responses**: Use `validateRatesResponse()` pattern to ensure data integrity.
+- Handle localStorage access errors gracefully (wrap in try/catch, validate on read).
 - Never expose technical error details to the user.
+
+### Security Error Handling
+
+- **Rate Limiting**: Return 429 status with user-friendly message when limit exceeded
+- **Invalid Data**: Log warnings for invalid localStorage/URL data, auto-clean corrupted storage
+- **API Failures**: Gracefully degrade to mock data, log detailed context for debugging
+- **XSS Prevention**: React escapes by default, but still sanitize currency codes and validate formats
 
 ## 7. Critical Gotchas
 
@@ -135,6 +153,9 @@ npm run test:e2e:report    # View HTML test report
 - **History Limits**: Enforce max 10 items in conversion history; oldest items are removed when exceeded.
 - **Type Safety**: Ensure all API responses match the `ExchangeRates` type; handle unexpected response shapes gracefully.
 - **Re-render Optimization**: Memoize callbacks with `useCallback` to avoid child component re-renders.
+- **Security First**: NEVER trust external data - validate API responses, sanitize user inputs, validate localStorage data.
+- **Rate Limiting**: API routes are limited to 100 requests/minute per IP to prevent abuse.
+- **CSP Restrictions**: Only allow connections to `https://api.frankfurter.app` - update `next.config.js` for new APIs.
 
 ## 8. Documentation
 
