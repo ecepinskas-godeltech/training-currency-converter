@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import FavoriteToggle from "./FavoriteToggle";
 import userEvent from "@testing-library/user-event";
 
@@ -29,7 +29,7 @@ describe("FavoriteToggle", () => {
   it("should call onToggleFavorite when a button is clicked", async () => {
     const onToggleFavorite = jest.fn();
     render(
-      <FavoriteToggle {...defaultProps} onToggleFavorite={onToggleFavorite} />
+      <FavoriteToggle {...defaultProps} onToggleFavorite={onToggleFavorite} />,
     );
 
     const usdButton = screen.getByRole("button", {
@@ -42,9 +42,7 @@ describe("FavoriteToggle", () => {
   });
 
   it("should show unfilled star for non-favorites and filled star for favorites", () => {
-    const { rerender } = render(
-      <FavoriteToggle {...defaultProps} favorites={["USD"]} />
-    );
+    render(<FavoriteToggle {...defaultProps} favorites={["USD"]} />);
 
     // USD should have filled star (★)
     const usdButton = screen.getByRole("button", {
@@ -61,13 +59,13 @@ describe("FavoriteToggle", () => {
 
   it("should update counter when favorites change", () => {
     const { rerender } = render(
-      <FavoriteToggle {...defaultProps} favorites={[]} />
+      <FavoriteToggle {...defaultProps} favorites={[]} />,
     );
 
     expect(screen.getByText("0/5")).toBeInTheDocument();
 
     rerender(
-      <FavoriteToggle {...defaultProps} favorites={["USD", "EUR", "GBP"]} />
+      <FavoriteToggle {...defaultProps} favorites={["USD", "EUR", "GBP"]} />,
     );
 
     expect(screen.getByText("3/5")).toBeInTheDocument();
@@ -79,7 +77,7 @@ describe("FavoriteToggle", () => {
         {...defaultProps}
         favorites={["USD", "EUR", "GBP", "JPY", "AUD"]}
         maxFavorites={5}
-      />
+      />,
     );
 
     // Favorite buttons should be enabled
@@ -100,11 +98,11 @@ describe("FavoriteToggle", () => {
       <FavoriteToggle
         {...defaultProps}
         error="You can only select up to 5 favorite currencies."
-      />
+      />,
     );
 
     expect(
-      screen.getByText("You can only select up to 5 favorite currencies.")
+      screen.getByText("You can only select up to 5 favorite currencies."),
     ).toBeInTheDocument();
   });
 

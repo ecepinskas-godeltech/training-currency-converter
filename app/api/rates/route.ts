@@ -31,24 +31,28 @@ function checkRateLimit(
  * Validate and sanitize exchange rates response
  */
 function validateRatesResponse(
-  data: any,
+  data: unknown,
 ): { base: string; rates: Record<string, number> } | null {
   if (!data || typeof data !== "object") {
     return null;
   }
 
+  // Type guard to safely access properties
+  const dataObj = data as Record<string, unknown>;
+
   if (
-    typeof data.base !== "string" ||
-    !data.rates ||
-    typeof data.rates !== "object"
+    typeof dataObj.base !== "string" ||
+    !dataObj.rates ||
+    typeof dataObj.rates !== "object"
   ) {
     return null;
   }
 
   // Sanitize rates object - only accept valid number values
   const sanitizedRates: Record<string, number> = {};
+  const ratesObj = dataObj.rates as Record<string, unknown>;
 
-  for (const [key, value] of Object.entries(data.rates)) {
+  for (const [key, value] of Object.entries(ratesObj)) {
     if (
       typeof key === "string" &&
       key.length === 3 &&
@@ -68,7 +72,7 @@ function validateRatesResponse(
   }
 
   return {
-    base: data.base,
+    base: dataObj.base,
     rates: sanitizedRates,
   };
 }
@@ -79,9 +83,9 @@ const API_SOURCES = [
   {
     name: "frankfurter.app",
     url: "https://api.frankfurter.app/latest?from=USD",
-    transform: (data: any) => ({
+    transform: (data: Record<string, unknown>) => ({
       base: data.base,
-      rates: { USD: 1, ...data.rates }, // Add USD since it's not included
+      rates: { USD: 1, ...(data.rates as Record<string, number>) }, // Add USD since it's not included
     }),
   },
 ];
@@ -89,7 +93,9 @@ const API_SOURCES = [
 /**
  * Fetch exchange rates from a specific API source
  */
-async function fetchFromSource(source: (typeof API_SOURCES)[0]): Promise<any> {
+async function fetchFromSource(
+  source: (typeof API_SOURCES)[0],
+): Promise<unknown> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
@@ -101,10 +107,6 @@ async function fetchFromSource(source: (typeof API_SOURCES)[0]): Promise<any> {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
-      // @ts-ignore - Node.js specific options
-      ...(typeof process !== "undefined" && {
-        agent: false, // Use default agent
-      }),
     });
 
     clearTimeout(timeout);
@@ -115,9 +117,12 @@ async function fetchFromSource(source: (typeof API_SOURCES)[0]): Promise<any> {
 
     const data = await response.json();
     return source.transform(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeout);
-    console.error(`Error fetching from ${source.name}:`, error.message);
+    console.error(
+      `Error fetching from ${source.name}:`,
+      error instanceof Error ? error.message : "Unknown error",
+    );
     throw error;
   }
 }
@@ -144,7 +149,7 @@ const MOCK_RATES = {
 /**
  * Fetch exchange rates with fallback support
  */
-async function fetchExchangeRates(): Promise<any> {
+async function fetchExchangeRates(): Promise<unknown> {
   let lastError: Error | null = null;
 
   // Try each API source in order
@@ -152,9 +157,12 @@ async function fetchExchangeRates(): Promise<any> {
     try {
       const data = await fetchFromSource(source);
       return data;
-    } catch (error: any) {
-      lastError = error;
-      console.error(`Failed to fetch from ${source.name}:`, error.message);
+    } catch (error: unknown) {
+      lastError = error as Error;
+      console.error(
+        `Failed to fetch from ${source.name}:`,
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
   }
 
@@ -208,13 +216,16 @@ export async function GET(request: NextRequest) {
         },
       },
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in exchange rates API:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "Failed to fetch exchange rates",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch exchange rates",
       },
       {
         status: 500,
