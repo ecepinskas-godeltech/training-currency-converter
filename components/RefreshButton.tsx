@@ -24,7 +24,7 @@ export default function RefreshButton({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [cooldownRemaining]);
 
   const handleRefresh = async () => {
     // Early exit: prevent refresh if already loading or refreshing
