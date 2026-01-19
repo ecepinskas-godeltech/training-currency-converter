@@ -4,7 +4,31 @@ This file provides custom instructions for using GitHub Copilot in this reposito
 
 ## 1. Project Overview
 
-This is a **Currency Converter** application built with Next.js, TypeScript, and Tailwind CSS. It enables real-time currency conversion between 10 popular currencies (USD, EUR, GBP, JPY, AUD, CAD, CHF, CNY, INR, MXN) with features including conversion history tracking, URL parameter persistence, and graceful error handling with automatic API fallbacks.
+This is a **Currency Converter** application built with Next.js 14 (App Router), TypeScript, and Tailwind CSS. It enables real-time currency conversion between 10 popular currencies with features including conversion history tracking, favorite currencies, URL parameter persistence, and graceful error handling with automatic API fallbacks.
+
+### Architecture at a Glance
+
+```
+app/page.tsx (Server Component)
+  ↓ fetches data via
+app/api/rates/route.ts (API Route with fallback chain)
+  ↓ returns ExchangeRates to
+app/page.tsx → converts to Client Component
+  ↓ manages state via
+hooks/useConverter + useExchangeRates
+  ↓ renders
+components/* (presentational, receive props)
+  ↓ uses utilities from
+utils/currency.ts + storage.ts (pure functions)
+```
+
+**Key architectural decisions:**
+
+- **Lifted state pattern**: `app/page.tsx` orchestrates all state; components are presentational
+- **Custom hooks as state containers**: `useConverter` holds conversion logic; `useExchangeRates` handles API fetching
+- **API route as abstraction layer**: `/app/api/rates/route.ts` implements fallback chain (frankfurter.app → mock data)
+- **localStorage for persistence**: Conversion history (max 10) + favorites (max 5) stored client-side
+- **URL as state**: Query params (`?amount=100&from=USD&to=EUR`) make conversions shareable
 
 ## 2. Coding Standards
 
@@ -15,10 +39,13 @@ This is a **Currency Converter** application built with Next.js, TypeScript, and
   - `utils/` - Pure utility functions and helpers
   - `types/` - TypeScript type definitions (centralized in `index.ts`)
   - `app/api/` - Next.js API routes
+  - `e2e/` - Playwright E2E tests organized by feature
+  - `specs/` - Feature specifications following spec-kit methodology
 - Use functional components with React hooks (no class components).
 - Prefer Tailwind CSS for styling; use utility classes for responsive design.
 - Write clear JSDoc comments for public functions and exported components.
 - Use meaningful variable and function names that clearly indicate purpose.
+- Export utility constants (e.g., `VALIDATION_LIMITS`, `MAX_FAVORITES`) for reusability and testing.
 
 ## 3. Architecture Patterns
 
@@ -49,6 +76,7 @@ This is a **Currency Converter** application built with Next.js, TypeScript, and
 
 - All new features and bug fixes must include unit tests.
 - Use **Jest** and **React Testing Library** for component and hook testing.
+- Use **Playwright** for E2E tests; follow Page Object Model pattern (see `e2e/pages/`).
 - Place test files next to their source files (e.g., `Component.test.tsx`).
 - Test patterns:
   - Always create `defaultProps` or `mockData` at the top of test files.
@@ -58,6 +86,21 @@ This is a **Currency Converter** application built with Next.js, TypeScript, and
   - Use descriptive test names: `'should render all form elements'` instead of `'renders'`.
 - Mock external dependencies (e.g., API calls, Next.js Router) consistently.
 - Aim for >80% code coverage on new code.
+
+### Testing Commands
+
+```bash
+# Unit tests
+npm test                    # Run all unit tests
+npm run test:watch         # Watch mode for TDD
+npm run test:coverage      # Generate coverage report
+
+# E2E tests (Playwright)
+npm run test:e2e           # Run all E2E tests (headless)
+npm run test:e2e:headed    # Run with browser UI
+npm run test:e2e:debug     # Debug mode with Playwright Inspector
+npm run test:e2e:report    # View HTML test report
+```
 
 ## 5. Session & State Management
 
@@ -99,12 +142,39 @@ This is a **Currency Converter** application built with Next.js, TypeScript, and
 - Document public functions and components with JSDoc comments.
 - Include examples in JSDoc for complex utility functions.
 
-## 9. Copilot Prompts & Suggestions
+## 9. Spec-Kit Methodology
+
+This project uses **spec-kit** for feature specification and development:
+
+- **Specifications live in `specs/`**: Each feature has a folder (e.g., `001-favorite-currencies/`)
+- **Spec format**: Follow the template in any `spec.md` - user stories are PRIORITIZED as user journeys (P1, P2, P3)
+- **Each user story must be independently testable**: If you implement just ONE story, you should have a viable MVP
+- **Agent-driven development**: Use agents in `.github/agents/speckit.*.agent.md` for workflow automation:
+  - `speckit.clarify.agent.md` - Clarify ambiguous requirements
+  - `speckit.specify.agent.md` - Generate specifications from user input
+  - `speckit.plan.agent.md` - Create implementation plans
+  - `speckit.implement.agent.md` - Implement features following specs
+  - `speckit.analyze.agent.md` - Analyze existing code for patterns
+
+### Spec-Kit Workflow Example
+
+```bash
+# 1. Create spec from user input (via agent or manually)
+# 2. Clarify ambiguous requirements
+# 3. Generate implementation plan
+# 4. Implement user stories in priority order (P1 first)
+# 5. Test each story independently
+# 6. Mark as complete in spec
+```
+
+## 10. Copilot Prompts & Suggestions
 
 - Prefer concise, context-aware prompts that reference existing patterns.
 - Request code that matches the project's style and conventions.
 - Review Copilot suggestions for accuracy and security before merging.
 - Use specific examples from the codebase when guiding Copilot (e.g., "follow the pattern used in `useConverter`").
+- For complex features, reference `specs/` documentation first.
+- Use specialized agents in `.github/agents/` for specific tasks (bug fixing, test writing, spec analysis).
 
 ---
 
