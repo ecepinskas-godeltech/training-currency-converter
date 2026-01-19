@@ -46,6 +46,32 @@ export function isValidCurrencyCode(code: string): boolean {
 }
 
 /**
+ * Sanitize currency code to prevent injection
+ * @param code - Currency code to sanitize
+ * @returns Sanitized currency code
+ * @throws Error if code format is invalid
+ */
+export function sanitizeCurrencyCode(code: string): string {
+  if (typeof code !== 'string') {
+    throw new Error('Currency code must be a string');
+  }
+  
+  // Only allow 3 uppercase letters
+  const sanitized = code.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+  
+  if (sanitized.length !== 3) {
+    throw new Error('Invalid currency code format');
+  }
+  
+  // Verify it's a supported currency
+  if (!isValidCurrencyCode(sanitized)) {
+    throw new Error(`Unsupported currency code: ${sanitized}`);
+  }
+  
+  return sanitized;
+}
+
+/**
  * Format amount with proper decimal places
  * @param amount - The numeric amount to format
  * @param decimals - Number of decimal places (default: 2)

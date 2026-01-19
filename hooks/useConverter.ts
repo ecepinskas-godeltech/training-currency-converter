@@ -32,12 +32,35 @@ export function useConverter(exchangeRates: ExchangeRates | null) {
     const urlFrom = searchParams.get("from");
     const urlTo = searchParams.get("to");
 
+    // Validate and set amount from URL
     if (urlAmount) {
-      setAmount(urlAmount);
+      const parsed = parseFloat(urlAmount);
+      if (!isNaN(parsed) && parsed > 0 && parsed <= 1000000000) {
+        setAmount(urlAmount);
+      } else {
+        console.warn('Invalid amount in URL parameters:', urlAmount);
+      }
     }
-    if (urlFrom && CURRENCIES.find((c) => c.code === urlFrom))
-      setFromCurrency(urlFrom);
-    if (urlTo && CURRENCIES.find((c) => c.code === urlTo)) setToCurrency(urlTo);
+    
+    // Validate and set from currency
+    if (urlFrom) {
+      const sanitized = urlFrom.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+      if (sanitized.length === 3 && CURRENCIES.find((c) => c.code === sanitized)) {
+        setFromCurrency(sanitized);
+      } else {
+        console.warn('Invalid from currency in URL parameters:', urlFrom);
+      }
+    }
+    
+    // Validate and set to currency
+    if (urlTo) {
+      const sanitized = urlTo.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+      if (sanitized.length === 3 && CURRENCIES.find((c) => c.code === sanitized)) {
+        setToCurrency(sanitized);
+      } else {
+        console.warn('Invalid to currency in URL parameters:', urlTo);
+      }
+    }
 
     setHistory(getConversionHistory());
 

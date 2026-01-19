@@ -1,5 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Simple in-memory rate limiter (consider Redis for production)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+/**
+ * Check rate limit for a given identifier
+ */
+function checkRateLimit(
+  identifier: string,
+  maxRequests = 100,
+  windowMs = 60000
+): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+
+  if (record.count >= maxRequests) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
+/**
+ * Validate and sanitize exchange rates response
+ */
+function validateRatesResponse(data: any): { base: string; rates: Record<string, number> } | null {
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+
+  if (typeof data.base !== 'string' || !data.rates || typeof data.rates !== 'object') {
+    return null;
+  }
+
+  // Sanitize rates object - only accept valid number values
+  const sanitizedRates: Record<string, number> = {};
+  
+  for (const [key, value] of Object.entries(data.rates)) {
+    if (
+      typeof key === 'string' &&
+      key.length === 3 &&
+      /^[A-Z]{3}$/.test(key) &&
+      typeof value === 'number' &&
+      !isNaN(value) &&
+      isFinite(value) &&
+      value > 0
+    ) {
+      sanitizedRates[key] = value;
+    }
+  }
+
+  // Ensure we have at least some valid rates
+  if (Object.keys(sanitizedRates).length === 0) {
+    return null;
+  }
+
+  return {
+    base: data.base,
+    rates: sanitizedRates,
+  };
+}
+
 // API sources with fallback support
 // Using free APIs that don't require authentication
 const API_SOURCES = [
@@ -95,21 +162,42 @@ async function fetchExchangeRates(): Promise<any> {
  * Implements 1-hour caching with Next.js revalidate
  */
 export async function GET(request: NextRequest) {
+  // Rate limiting check
+  const identifier = request.headers.get('x-forwarded-for') || 'anonymous';
+  
+  if (!checkRateLimit(identifier)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Rate limit exceeded. Please try again later.',
+      },
+      { status: 429 }
+    );
+  }
+
   try {
     const data = await fetchExchangeRates();
+
+    // Validate response structure
+    const validatedData = validateRatesResponse(data);
+    
+    if (!validatedData) {
+      throw new Error('Invalid API response structure');
+    }
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          base: data.base,
-          rates: data.rates,
+          base: validatedData.base,
+          rates: validatedData.rates,
           timestamp: Date.now(),
         },
       },
       {
         headers: {
           'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+          'X-Content-Type-Options': 'nosniff',
         },
       }
     );

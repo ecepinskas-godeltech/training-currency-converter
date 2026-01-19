@@ -8,6 +8,45 @@ export const FAVORITES_STORAGE_KEY = "currency_favorites";
 export const MAX_FAVORITES = 5;
 
 /**
+ * Validates if a value is a valid conversion result
+ */
+function isValidConversionResult(entry: any): entry is ConversionResult {
+  return (
+    entry &&
+    typeof entry === 'object' &&
+    typeof entry.from === 'string' &&
+    typeof entry.to === 'string' &&
+    typeof entry.amount === 'number' &&
+    typeof entry.result === 'number' &&
+    typeof entry.rate === 'number' &&
+    typeof entry.timestamp === 'number' &&
+    !isNaN(entry.amount) &&
+    !isNaN(entry.result) &&
+    !isNaN(entry.rate) &&
+    entry.amount > 0 &&
+    entry.result > 0 &&
+    entry.rate > 0 &&
+    entry.from.length === 3 &&
+    entry.to.length === 3 &&
+    /^[A-Z]{3}$/.test(entry.from) &&
+    /^[A-Z]{3}$/.test(entry.to) &&
+    entry.timestamp > 0 &&
+    entry.timestamp <= Date.now()
+  );
+}
+
+/**
+ * Validates if a value is a valid currency code
+ */
+function isValidCurrencyCode(code: any): code is string {
+  return (
+    typeof code === 'string' &&
+    code.length === 3 &&
+    /^[A-Z]{3}$/.test(code)
+  );
+}
+
+/**
  * Get favorite currencies from localStorage
  */
 export function getFavoriteCurrencies(): string[] {
@@ -17,9 +56,28 @@ export function getFavoriteCurrencies(): string[] {
   try {
     const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
     if (!stored) return [];
-    return JSON.parse(stored);
+    
+    const parsed = JSON.parse(stored);
+    
+    // Validate array structure
+    if (!Array.isArray(parsed)) {
+      console.warn('Invalid favorites format in localStorage');
+      localStorage.removeItem(FAVORITES_STORAGE_KEY);
+      return [];
+    }
+    
+    // Filter and validate each entry
+    const validated = parsed.filter(isValidCurrencyCode).slice(0, MAX_FAVORITES);
+    
+    // If validation removed entries, update storage
+    if (validated.length !== parsed.length) {
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(validated));
+    }
+    
+    return validated;
   } catch (error) {
     console.error("Error reading favorite currencies:", error);
+    localStorage.removeItem(FAVORITES_STORAGE_KEY);
     return [];
   }
 }
@@ -55,10 +113,28 @@ export function getConversionHistory(): ConversionResult[] {
       return [];
     }
 
-    const history: ConversionHistory = JSON.parse(stored);
-    return history.conversions || [];
+    const parsed = JSON.parse(stored);
+    
+    // Validate structure
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.conversions)) {
+      console.warn('Invalid history format in localStorage');
+      localStorage.removeItem(STORAGE_KEY);
+      return [];
+    }
+    
+    // Filter and validate each conversion entry
+    const validated = parsed.conversions.filter(isValidConversionResult).slice(0, MAX_HISTORY_ITEMS);
+    
+    // If validation removed entries, update storage
+    if (validated.length !== parsed.conversions.length) {
+      const cleanedHistory: ConversionHistory = { conversions: validated };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanedHistory));
+    }
+    
+    return validated;
   } catch (error) {
     console.error("Error reading conversion history:", error);
+    localStorage.removeItem(STORAGE_KEY);
     return [];
   }
 }
